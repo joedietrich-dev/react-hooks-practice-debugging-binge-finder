@@ -9,11 +9,10 @@ function App() {
   const [shows, setShows] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedShow, setSelectedShow] = useState("");
-  const [episodes, setEpisodes] = useState([]);
   const [filterByRating, setFilterByRating] = useState("");
 
   useEffect(() => {
-    Adapter.getShows().then((shows) => setShows(shows));
+    Adapter.getShows(0).then((shows) => setShows(shows));
   }, []);
 
   useEffect(() => {
@@ -31,16 +30,18 @@ function App() {
   }
 
   function selectShow(show) {
-    Adapter.getShowEpisodes(show.id).then((episodes) => {
-      setSelectedShow(show);
-      setEpisodes(episodes);
-    });
+    setSelectedShow(show);
   }
 
   let displayShows = shows;
   if (filterByRating) {
     displayShows = displayShows.filter((s) => {
-      s.rating.average >= filterByRating;
+      return s.rating.average >= parseInt(filterByRating, 10);
+    });
+  }
+  if (searchTerm) {
+    displayShows = displayShows.filter((s) => {
+      return s.name.toLowerCase().includes(searchTerm.toLowerCase());
     });
   }
 
@@ -56,7 +57,6 @@ function App() {
           {!!selectedShow ? (
             <SelectedShowContainer
               selectedShow={selectedShow}
-              allEpisodes={episodes}
             />
           ) : (
             <div />
@@ -66,7 +66,6 @@ function App() {
           <TVShowList
             shows={displayShows}
             selectShow={selectShow}
-            searchTerm={searchTerm}
           />
         </Grid.Column>
       </Grid>

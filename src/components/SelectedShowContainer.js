@@ -1,13 +1,25 @@
-import React, { useState } from "react";
-import Episode from "./Components/Episode";
+import React, { useEffect, useState } from "react";
+import Adapter from "../Adapter";
+import Episode from "./Episode";
 
-function SelectedShowContainer(props) {
-  const selectedSeason = useState(1);
+function SelectedShowContainer({ selectedShow }) {
+  const [episodes, setEpisodes] = useState([]);
+  const [selectedSeason, setSelectedSeason] = useState(1);
 
+  useEffect(() => {
+    Adapter.getShowEpisodes(selectedShow.id).then((episodes) => {
+      setEpisodes(episodes);
+      setSelectedSeason(episodes[0].season)
+    });
+  }, [selectedShow])
+
+
+  function getUniqueSeasons() {
+    return unique(episodes.map((e) => e.season))
+  }
   function mapSeasons() {
-    if (!!props.episodes) {
-      let seasons = props.episodes.map((e) => e.season).unique();
-
+    if (!!episodes) {
+      let seasons = getUniqueSeasons();
       return seasons.map((s) => {
         return (
           <option value={s} key={s}>
@@ -19,18 +31,14 @@ function SelectedShowContainer(props) {
   }
 
   function mapEpisodes() {
-    return props.episodes.map((e) => {
-      if (e.season == selectedSeason) {
-        return <Episode eachEpisode={e} key={e.id} />;
-      }
-    });
+    return episodes
+      .filter(e => e.season === selectedSeason)
+      .map((e) => <Episode episode={e} key={e.id} />);
   }
 
   function handleSelectionChange(e) {
-    selectedSeason = e.target.value;
+    setSelectedSeason(parseInt(e.target.value, 10));
   }
-
-  const { selectedShow } = props;
 
   return (
     <div style={{ position: "static" }}>
@@ -40,7 +48,7 @@ function SelectedShowContainer(props) {
       <p>Premiered: {selectedShow.premiered}</p>
       <p>Status: {selectedShow.status}</p>
       <p>Average Rating: {selectedShow.rating.average}</p>
-      <select style={{ display: "block" }} onChange={handleSelectionChange}>
+      <select style={{ display: "block" }} onChange={handleSelectionChange} value={selectedSeason}>
         {mapSeasons()}
       </select>
       {mapEpisodes()}
@@ -48,14 +56,14 @@ function SelectedShowContainer(props) {
   );
 }
 
-export SelectedShowContainer;
-
-Array.prototype.unique = function () {
+function unique(array = []) {
   const arr = [];
-  for (let i = 0; i < this.length; i++) {
-    if (!arr.includes(this[i])) {
-      arr.push(this[i]);
+  for (let i = 0; i < array.length; i++) {
+    if (!arr.includes(array[i])) {
+      arr.push(array[i]);
     }
   }
   return arr;
 };
+
+export default SelectedShowContainer;

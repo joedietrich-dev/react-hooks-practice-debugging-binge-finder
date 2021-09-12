@@ -8,7 +8,7 @@ function Search(props) {
         type="text"
         placeholder="Search"
         onChange={props.handleSearch}
-        value={props.search}
+        value={props.searchTerm}
       />
     </div>
   );
