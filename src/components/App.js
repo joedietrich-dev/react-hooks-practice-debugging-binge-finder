@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Grid } from "semantic-ui-react";
+import { Grid, Visibility } from "semantic-ui-react";
 import Adapter from "../Adapter";
 import TVShowList from "./TVShowList";
 import Nav from "./Nav";
@@ -10,6 +10,7 @@ function App() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedShow, setSelectedShow] = useState("");
   const [filterByRating, setFilterByRating] = useState("");
+  const [page, setPage] = useState(0);
 
   useEffect(() => {
     Adapter.getShows(0).then((shows) => setShows(shows));
@@ -31,6 +32,11 @@ function App() {
 
   function selectShow(show) {
     setSelectedShow(show);
+  }
+
+  function loadNextPage() {
+    Adapter.getShows(page + 1).then((newShows) => setShows([...shows, ...newShows]));
+    setPage(op => op + 1);
   }
 
   let displayShows = shows;
@@ -67,6 +73,8 @@ function App() {
             shows={displayShows}
             selectShow={selectShow}
           />
+
+          <Visibility onOnScreen={loadNextPage} />
         </Grid.Column>
       </Grid>
     </div>

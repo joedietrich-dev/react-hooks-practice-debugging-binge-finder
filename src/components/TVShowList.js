@@ -1,6 +1,6 @@
 import React from "react";
 import TVShow from "./TVShow"
-import { Grid } from "semantic-ui-react";
+import { Grid, Visibility } from "semantic-ui-react";
 
 function TVShowList({ shows, selectShow }) {
   function mapAllShows() {
